@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Weather Website</title>
+     <!-- Add your CSS stylesheet here -->
+     <link rel="stylesheet" type="text/css" href="weather.css">
+  </head>
+  <body>
+    <header>
+      <h1>Weather Website</h1>
+    </header>
+    
+    <main>
+      <form id="weather-form">
+        <label for="location">Enter a location:</label>
+        <input type="text" id="location" name="location">
+        <button type="submit">Search</button>
+      </form>
+    
+      <div id="weather-data">
+        <!-- weather data will be displayed here -->
+        <p id="location-data">Location: <span id="location-name"></span></p>
+        <p id="weather-condition">Condition: <span id="condition"></span></p>
+        <p id="weather-forecast">Forecast: <span id="forecast"></span></p>
+        <p id="current-temperature">Temperature: <span id="temperature"></span></p>
+      </div>
+    </main>
+    <div id="time-of-day">
+      <!-- Placeholder for time of day message -->
+    </div>
+    <div id="date-info">
+    </div>
+
+    <div id="location-info">
+    </div>
+    
+    <img id="time-of-day-image" style="display: none;">
+    
+    
+    <style>
+      #time-of-day {
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+  }
+  #date-info{
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+
+  }
+    </style>
+    <script>
+     const timeOfDayMessage = document.querySelector("#time-of-day");
+  const dateInfo = document.querySelector("#date-info");
+  const locationInfo = document.querySelector("#location-info");
+
+  // Request the user's location
+  navigator.geolocation.getCurrentPosition((position) => {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    // Use the latitude and longitude to get the time zone
+    fetch(
+      `https://api.timezonedb.com/v2.1/get-time-zone?key=R5OE5KEW2X4W&format=json&by=position&lat=${latitude}&lng=${longitude}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const timeZoneId = data.zoneName;
+        const date = new Date();
+
+        // Use the time zone ID to display the time and date
+        const options = {
+          timeZone: timeZoneId,
+        };
+
+        const month = date.toLocaleString("en-US", {
+          month: "long",
+          ...options,
+        });
+        const day = date.toLocaleDateString("en-US", options);
+        const time = date.toLocaleTimeString("en-US", options);
+
+        dateInfo.innerHTML = `${month} ${day}, ${time}`;
+        locationInfo.innerHTML = `Time Zone: ${timeZoneId}`;
+
+        // Set the background image based on the time of day
+        let currentTime = date.getHours();
+        let timeOfDay;
+        let backgroundImageUrl;
+
+        switch (true) {
+          case currentTime < 12:
+            timeOfDay = "morning";
+            backgroundImageUrl = "./image/m4.webp";
+            break;
+          case currentTime >= 12 && currentTime < 17:
+            timeOfDay = "afternoon";
+            backgroundImageUrl = "./image/aft.jpeg";
+            break;
+          case currentTime >= 17 && currentTime < 24:
+            timeOfDay = "evening";
+            backgroundImageUrl = "./image/night4.jpg";
+            break;
+          default:
+            timeOfDay = "night";
+            backgroundImageUrl = "./image/night.jpg";
+            break;
+        }
+
+        document.body.style.backgroundImage = `url(${backgroundImageUrl})`;
+        timeOfDayMessage.innerHTML = `Good ${timeOfDay}!`;
+      });
+  });
+    </script>
+    
+    
+    <script src="./weather.js" ></script>
+    <br><br>
+    <footer>
+      <p>Copyright &copy; 2023 Weather Website</p>
+    </footer>
+  </body>
+</html>
